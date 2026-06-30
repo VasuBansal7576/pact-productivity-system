@@ -1,0 +1,18 @@
+# Credentials & Secrets
+pact/.env
+pact/token.json
+pact/client_secret.json
+
+# Python cache & virtual environments
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.venv/
+env/
+venv/
+ENV/
+
+# OS specific files
+.DS_Store
+Thumbs.db

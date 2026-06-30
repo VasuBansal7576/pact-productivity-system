@@ -1,0 +1,956 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PACT — Multi-Agent Productivity Companion</title>
+    
+    <!-- Premium Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    
+    <!-- FontAwesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        /* CSS variables for consistent premium design tokens */
+        :root {
+            --bg-dark: #090a0f;
+            --bg-card: rgba(17, 19, 31, 0.75);
+            --bg-card-hover: rgba(26, 29, 46, 0.85);
+            --border-glass: rgba(255, 255, 255, 0.08);
+            --border-glow: rgba(99, 102, 241, 0.15);
+            
+            --primary: #6366f1;
+            --primary-glow: rgba(99, 102, 241, 0.4);
+            --secondary: #a855f7;
+            --accent: #14b8a6;
+            
+            --text-main: #f3f4f6;
+            --text-muted: #9ca3af;
+            --text-dark: #6b7280;
+            
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --info: #3b82f6;
+            
+            --grad-primary: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+            --grad-dark: radial-gradient(circle at top, #1e1b4b 0%, #090a0f 70%);
+            
+            --shadow-premium: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-dark);
+            background-image: var(--grad-dark);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+        }
+
+        h1, h2, h3, h4, .brand-font {
+            font-family: 'Outfit', sans-serif;
+        }
+
+        /* Glassmorphism utility card */
+        .glass-card {
+            background: var(--bg-card);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--border-glass);
+            border-radius: 16px;
+            box-shadow: var(--shadow-premium);
+            transition: var(--transition);
+        }
+
+        .glass-card:hover {
+            border-color: rgba(99, 102, 241, 0.25);
+            box-shadow: 0 8px 32px 0 rgba(99, 102, 241, 0.08);
+        }
+
+        /* Premium scrollbars */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.1);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.25);
+        }
+
+        /* Header Style */
+        header {
+            padding: 1.5rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border-glass);
+            background: rgba(9, 10, 15, 0.5);
+            backdrop-filter: blur(8px);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo-container {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .logo-icon {
+            font-size: 2rem;
+            background: var(--grad-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: pulse-glow 3s infinite alternate;
+        }
+
+        .brand-name {
+            font-size: 1.8rem;
+            font-weight: 800;
+            letter-spacing: 0.05em;
+            background: linear-gradient(to right, #fff, var(--text-muted));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .oauth-badge {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            font-size: 0.85rem;
+            border-radius: 99px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-glass);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .oauth-badge:hover {
+            background: rgba(99, 102, 241, 0.15);
+            border-color: var(--primary);
+        }
+
+        .oauth-badge.connected i {
+            color: var(--success);
+        }
+
+        /* App Layout Container */
+        .app-container {
+            flex: 1;
+            display: grid;
+            grid-template-columns: 380px 1fr 340px;
+            gap: 1.5rem;
+            padding: 1.5rem;
+            max-width: 1600px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        /* Column Styles */
+        .app-column {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            height: calc(100vh - 120px);
+            overflow-y: auto;
+            padding-right: 0.25rem;
+        }
+
+        /* Panel Title */
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .panel-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        /* Left Column: Chat / Capture Console */
+        .chat-console {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .chat-history {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .message-bubble {
+            padding: 0.85rem 1.1rem;
+            border-radius: 12px;
+            max-width: 85%;
+            font-size: 0.95rem;
+            line-height: 1.5;
+            position: relative;
+        }
+
+        .message-bubble.user {
+            background: rgba(99, 102, 241, 0.15);
+            border: 1px solid rgba(99, 102, 241, 0.2);
+            align-self: flex-end;
+            border-bottom-right-radius: 4px;
+        }
+
+        .message-bubble.agent {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid var(--border-glass);
+            align-self: flex-start;
+            border-bottom-left-radius: 4px;
+        }
+
+        .message-logs {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+            color: var(--accent);
+            background: rgba(0, 0, 0, 0.2);
+            padding: 0.5rem;
+            border-radius: 6px;
+            margin-top: 0.5rem;
+            border-left: 2px solid var(--accent);
+            white-space: pre-wrap;
+        }
+
+        /* Chat Input Console */
+        .chat-input-container {
+            padding: 1rem;
+            border-top: 1px solid var(--border-glass);
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .input-row {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+        }
+
+        .chat-textarea {
+            flex: 1;
+            background: rgba(0, 0, 0, 0.25);
+            border: 1px solid var(--border-glass);
+            border-radius: 12px;
+            padding: 0.75rem 1rem;
+            color: var(--text-main);
+            font-size: 0.95rem;
+            resize: none;
+            height: 48px;
+            outline: none;
+            transition: var(--transition);
+        }
+
+        .chat-textarea:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px var(--primary-glow);
+        }
+
+        .action-btn {
+            background: var(--bg-card);
+            border: 1px solid var(--border-glass);
+            color: var(--text-main);
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .action-btn:hover {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: var(--text-muted);
+        }
+
+        .action-btn.send {
+            background: var(--grad-primary);
+            border: none;
+        }
+
+        .action-btn.send:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 15px var(--primary-glow);
+        }
+
+        .action-btn.mic.recording {
+            background: var(--danger);
+            animation: pulse-record 1.5s infinite alternate;
+            border: none;
+        }
+
+        /* Middle Column: Focus Feed (Active Tasks & Board) */
+        .task-feed-panel {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .feed-container {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        /* Task Card styling */
+        .task-card {
+            padding: 1.25rem;
+            border-radius: 14px;
+            border-left: 4px solid var(--info);
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .task-card.aversive {
+            border-left-color: var(--danger);
+            background: linear-gradient(90deg, rgba(239, 68, 68, 0.03) 0%, var(--bg-card) 100%);
+        }
+
+        .task-card.drafted {
+            border-left-color: var(--success);
+        }
+
+        .task-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+
+        .task-title {
+            font-size: 1.15rem;
+            font-weight: 600;
+            color: #fff;
+        }
+
+        .task-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            align-items: center;
+        }
+
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .meta-item.countdown {
+            color: var(--warning);
+            font-weight: 500;
+        }
+
+        .badge {
+            font-size: 0.75rem;
+            padding: 0.2rem 0.5rem;
+            border-radius: 99px;
+            font-weight: 500;
+            text-transform: uppercase;
+        }
+
+        .badge.domain {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-glass);
+        }
+
+        .badge.status-captured { background: rgba(59, 130, 246, 0.15); color: var(--info); }
+        .badge.status-scheduled { background: rgba(245, 158, 11, 0.15); color: var(--warning); }
+        .badge.status-drafted { background: rgba(16, 185, 129, 0.15); color: var(--success); }
+        .badge.status-done { background: rgba(16, 185, 129, 0.3); color: var(--success); }
+        .badge.status-missed { background: rgba(239, 68, 68, 0.2); color: var(--danger); }
+
+        .artifact-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: rgba(99, 102, 241, 0.12);
+            border: 1px solid rgba(99, 102, 241, 0.25);
+            color: var(--primary);
+            padding: 0.4rem 0.8rem;
+            border-radius: 8px;
+            text-decoration: none;
+            font-size: 0.85rem;
+            align-self: flex-start;
+            transition: var(--transition);
+        }
+
+        .artifact-link:hover {
+            background: var(--primary);
+            color: #fff;
+        }
+
+        .task-actions {
+            display: flex;
+            gap: 0.5rem;
+            justify-content: flex-end;
+            margin-top: 0.5rem;
+        }
+
+        .card-btn {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border-glass);
+            color: var(--text-muted);
+            padding: 0.35rem 0.75rem;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .card-btn:hover {
+            background: rgba(255, 255, 255, 0.08);
+            color: #fff;
+        }
+
+        .card-btn.done-btn:hover {
+            background: rgba(16, 185, 129, 0.15);
+            border-color: var(--success);
+            color: var(--success);
+        }
+
+        /* Right Column: Goal/Habit Tracker & Procrastination Heatmap */
+        .insights-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .stats-summary {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.75rem;
+        }
+
+        .stat-box {
+            padding: 1rem;
+            text-align: center;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--border-glass);
+        }
+
+        .stat-value {
+            font-size: 1.6rem;
+            font-weight: 700;
+            background: var(--grad-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .stat-label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-top: 0.25rem;
+            text-transform: uppercase;
+        }
+
+        /* Goal Streaks */
+        .goals-container {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            padding: 1rem;
+        }
+
+        .goal-item {
+            background: rgba(255, 255, 255, 0.01);
+            border: 1px solid var(--border-glass);
+            padding: 0.85rem;
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .goal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .goal-name {
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+
+        .goal-streak {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+            color: #f97316;
+            font-weight: 600;
+            font-size: 0.85rem;
+        }
+
+        .progress-bar-bg {
+            height: 6px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 99px;
+            overflow: hidden;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            background: var(--grad-primary);
+            border-radius: 99px;
+            width: 0%;
+            transition: width 1s ease-in-out;
+        }
+
+        /* Procrastination heatmap details */
+        .procrastination-card {
+            padding: 1rem;
+        }
+
+        .heatmap-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 0.5rem;
+            margin-top: 0.75rem;
+        }
+
+        .heatmap-cell {
+            padding: 0.5rem;
+            text-align: center;
+            border-radius: 8px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            border: 1px solid var(--border-glass);
+        }
+
+        /* Animations */
+        @keyframes pulse-glow {
+            0% { filter: drop-shadow(0 0 2px rgba(99, 102, 241, 0.4)); }
+            100% { filter: drop-shadow(0 0 10px rgba(99, 102, 241, 0.8)); }
+        }
+
+        @keyframes pulse-record {
+            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+            70% { transform: scale(1.05); box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
+            100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 1100px) {
+            .app-container {
+                grid-template-columns: 1fr;
+                padding: 1rem;
+            }
+            .app-column {
+                height: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="logo-container">
+            <i class="fa-solid fa-hourglass-start logo-icon"></i>
+            <span class="brand-name">PACT</span>
+        </div>
+        
+        <div class="oauth-badge connected" id="oauth-status" onclick="startOAuth()">
+            <i class="fa-brands fa-google"></i>
+            <span>Connected to Google Suite</span>
+        </div>
+    </header>
+
+    <div class="app-container">
+        
+        <!-- Left: Agent Chat Console -->
+        <div class="app-column">
+            <div class="panel-header">
+                <h3 class="panel-title"><i class="fa-solid fa-terminal"></i> Command Console</h3>
+            </div>
+            
+            <div class="chat-console glass-card" style="flex: 1;">
+                <div class="chat-history" id="chat-history">
+                    <div class="message-bubble agent">
+                        Hello. Speak or type a task you need to perform. I will analyze its risk, block time on your calendar, and construct your initial draft.
+                    </div>
+                </div>
+                
+                <div class="chat-input-container">
+                    <div class="input-row">
+                        <textarea class="chat-textarea" id="chat-input" placeholder="Type a task, e.g. Write essay by tomorrow noon..."></textarea>
+                        <button class="action-btn send" id="send-btn" onclick="sendTask()"><i class="fa-solid fa-paper-plane"></i></button>
+                        <button class="action-btn mic" id="mic-btn" onclick="toggleVoice()"><i class="fa-solid fa-microphone"></i></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Middle: Focus Feed -->
+        <div class="app-column" style="grid-column: span 1;">
+            <div class="panel-header">
+                <h3 class="panel-title"><i class="fa-solid fa-fire-flame-curved"></i> Active Focus Feed</h3>
+            </div>
+            
+            <div class="task-feed-panel glass-card">
+                <div class="feed-container" id="task-feed">
+                    <div style="text-align: center; color: var(--text-dark); margin: 2rem 0;">
+                        <i class="fa-solid fa-clipboard-list" style="font-size: 2.5rem; margin-bottom: 0.5rem;"></i>
+                        <p>No active time blocks or drafted tasks</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Right: Insights & Goals -->
+        <div class="app-column insights-panel">
+            <div class="panel-header">
+                <h3 class="panel-title"><i class="fa-solid fa-chart-simple"></i> Habits & Analytics</h3>
+            </div>
+            
+            <div class="glass-card stats-summary" style="padding: 1rem;">
+                <div class="stat-box">
+                    <div class="stat-value" id="stat-completed">0</div>
+                    <div class="stat-label">On Time</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value" id="stat-missed" style="background: linear-gradient(135deg, #ef4444 0%, #f59e0b 100%); -webkit-background-clip: text;">0</div>
+                    <div class="stat-label">Missed</div>
+                </div>
+            </div>
+            
+            <div class="glass-card">
+                <div class="panel-header" style="padding: 1rem 1rem 0 1rem;">
+                    <h4 class="panel-title" style="font-size: 0.9rem;"><i class="fa-solid fa-medal"></i> Habit Streaks</h4>
+                </div>
+                <div class="goals-container" id="goals-list">
+                    <div style="text-align: center; color: var(--text-dark); font-size: 0.85rem;">
+                        No active goals or habit tracker configured
+                    </div>
+                </div>
+            </div>
+            
+            <div class="glass-card procrastination-card">
+                <h4 class="panel-title" style="font-size: 0.9rem; margin-bottom: 0.5rem;"><i class="fa-solid fa-triangle-exclamation"></i> Procrastination Risk</h4>
+                <div class="heatmap-grid" id="procrastination-grid">
+                    <div class="heatmap-cell" style="background: rgba(16, 185, 129, 0.1); color: var(--success);">Email</div>
+                    <div class="heatmap-cell" style="background: rgba(16, 185, 129, 0.1); color: var(--success);">Doc</div>
+                    <div class="heatmap-cell" style="background: rgba(16, 185, 129, 0.1); color: var(--success);">Research</div>
+                    <div class="heatmap-cell" style="background: rgba(16, 185, 129, 0.1); color: var(--success);">Other</div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Web Audio & Script Integration -->
+    <script>
+        let mediaRecorder;
+        let audioChunks = [];
+        let isRecording = false;
+
+        // Fetch tasks and metrics on load
+        window.addEventListener('load', () => {
+            fetchData();
+            // Poll tasks every 10 seconds for real-time dashboard updates
+            setInterval(fetchData, 10000);
+        });
+
+        function fetchData() {
+            fetch('/tasks')
+                .then(res => res.json())
+                .then(data => {
+                    renderTasks(data.active, data.history);
+                })
+                .catch(err => console.error("Error fetching tasks:", err));
+
+            fetch('/patterns')
+                .then(res => res.json())
+                .then(data => {
+                    renderPatterns(data);
+                })
+                .catch(err => console.error("Error fetching patterns:", err));
+        }
+
+        function renderTasks(active, history) {
+            const feed = document.getElementById('task-feed');
+            if (!active || active.length === 0) {
+                feed.innerHTML = `
+                    <div style="text-align: center; color: var(--text-dark); margin: 2rem 0;">
+                        <i class="fa-solid fa-clipboard-list" style="font-size: 2.5rem; margin-bottom: 0.5rem;"></i>
+                        <p>No active tasks or drafts currently monitored.</p>
+                    </div>`;
+                return;
+            }
+
+            feed.innerHTML = '';
+            active.forEach(task => {
+                const isAversive = task.aversiveness_score >= 0.6;
+                const deadlineDate = new Date(task.deadline);
+                const isOverdue = deadlineDate < new Date();
+                
+                // Formulate simple countdown
+                const diffMs = deadlineDate - new Date();
+                const diffHrs = Math.max(0, Math.floor(diffMs / (1000 * 60 * 60)));
+                const diffMins = Math.max(0, Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60)));
+                
+                let countdownText = `${diffHrs}h ${diffMins}m left`;
+                if (isOverdue) countdownText = "Expired/Overdue";
+
+                let draftUrlMarkup = '';
+                if (task.draft_url) {
+                    if (task.draft_url.startsWith('/static/reports/')) {
+                        const htmlUrl = task.draft_url;
+                        const mdUrl = task.draft_url.replace('.html', '.md');
+                        draftUrlMarkup = `
+                            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                                <a href="${htmlUrl}" target="_blank" class="artifact-link">
+                                    <i class="fa-solid fa-file-code"></i> View HTML Report
+                                </a>
+                                <a href="${mdUrl}" target="_blank" class="artifact-link" style="background: rgba(20, 184, 166, 0.12); border-color: rgba(20, 184, 166, 0.25); color: var(--accent);">
+                                    <i class="fa-solid fa-arrow-down"></i> Download Markdown
+                                </a>
+                            </div>`;
+                    } else {
+                        const isUrl = task.draft_url.startsWith('http');
+                        draftUrlMarkup = `
+                            <a href="${isUrl ? task.draft_url : '#'}" target="_blank" class="artifact-link">
+                                <i class="fa-solid ${isUrl ? 'fa-arrow-up-right-from-square' : 'fa-envelope'}"></i>
+                                ${isUrl ? 'Open Google Doc' : 'Gmail Draft ID: ' + task.draft_url.substring(0, 8) + '...'}
+                            </a>`;
+                    }
+                }
+
+                const card = document.createElement('div');
+                card.className = `task-card glass-card ${isAversive ? 'aversive' : ''} ${task.status}`;
+                card.innerHTML = `
+                    <div class="task-card-header">
+                        <div class="task-title">${task.title}</div>
+                        <span class="badge status-${task.status}">${task.status}</span>
+                    </div>
+                    <div class="task-meta">
+                        <span class="badge domain">${task.domain}</span>
+                        <div class="meta-item"><i class="fa-solid fa-clock"></i> ${task.effort_estimate_minutes}m est.</div>
+                        <div class="meta-item"><i class="fa-solid fa-triangle-exclamation"></i> Risk: ${task.aversiveness_score.toFixed(1)}</div>
+                        <div class="meta-item countdown ${isOverdue ? 'expired' : ''}"><i class="fa-solid fa-hourglass-half"></i> ${countdownText}</div>
+                    </div>
+                    ${draftUrlMarkup}
+                    <div class="task-actions">
+                        <button class="card-btn done-btn" onclick="markTaskStatus('${task.id}', 'done')"><i class="fa-solid fa-check"></i> Complete</button>
+                        <button class="card-btn" onclick="markTaskStatus('${task.id}', 'missed')"><i class="fa-solid fa-xmark"></i> Dismiss</button>
+                    </div>
+                `;
+                feed.appendChild(card);
+            });
+        }
+
+        function renderPatterns(pattern) {
+            document.getElementById('stat-completed').innerText = pattern.tasks_completed_on_time || 0;
+            document.getElementById('stat-missed').innerText = pattern.tasks_missed || 0;
+
+            // Render goal list
+            const goalsList = document.getElementById('goals-list');
+            if (!pattern.goals || pattern.goals.length === 0) {
+                goalsList.innerHTML = `
+                    <div style="text-align: center; color: var(--text-dark); font-size: 0.85rem;">
+                        No active goals configured.
+                    </div>`;
+            } else {
+                goalsList.innerHTML = '';
+                pattern.goals.forEach(goal => {
+                    const pct = goal.tasks_linked > 0 ? (goal.tasks_completed / goal.tasks_linked) * 100 : 0;
+                    const item = document.createElement('div');
+                    item.className = 'goal-item';
+                    item.innerHTML = `
+                        <div class="goal-header">
+                            <span class="goal-name">${goal.title}</span>
+                            <span class="goal-streak"><i class="fa-solid fa-fire"></i> ${goal.streak_current}d</span>
+                        </div>
+                        <div class="progress-bar-bg">
+                            <div class="progress-bar-fill" style="width: ${pct}%"></div>
+                        </div>
+                    `;
+                    goalsList.appendChild(item);
+                });
+            }
+
+            // Render procrastination heatmap
+            const grid = document.getElementById('procrastination-grid');
+            grid.innerHTML = '';
+            const domains = ["email", "document", "research", "booking", "payment", "form", "other"];
+            domains.forEach(dom => {
+                const isProcrastination = pattern.procrastination_domains && pattern.procrastination_domains.includes(dom);
+                const color = isProcrastination ? 'rgba(239, 68, 68, 0.2)' : 'rgba(16, 185, 129, 0.1)';
+                const textColor = isProcrastination ? 'var(--danger)' : 'var(--success)';
+                const border = isProcrastination ? '1px solid var(--danger)' : '1px solid var(--border-glass)';
+                
+                const cell = document.createElement('div');
+                cell.className = 'heatmap-cell';
+                cell.style.background = color;
+                cell.style.color = textColor;
+                cell.style.border = border;
+                cell.innerText = dom;
+                grid.appendChild(cell);
+            });
+        }
+
+        // Start Google OAuth Callback Redirect
+        function startOAuth() {
+            window.open('/oauth/login', '_blank');
+        }
+
+        // Action Button Handlers
+        function sendTask() {
+            const input = document.getElementById('chat-input');
+            const message = input.value.trim();
+            if (!message) return;
+
+            appendChatBubble('user', message);
+            input.value = '';
+
+            fetch('/chat', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ message: message })
+            })
+            .then(res => res.json())
+            .then(data => {
+                appendChatBubble('agent', data.response, data.logs);
+                fetchData();
+            })
+            .catch(err => {
+                appendChatBubble('agent', 'Error executing PACT task: ' + err.message);
+            });
+        }
+
+        function markTaskStatus(id, status) {
+            // Trigger Done/Missed postmortem reflex pipeline
+            const text = `Reflection request: Task ID ${id} is marked as ${status}`;
+            appendChatBubble('user', `Marking task status to ${status}`);
+            
+            fetch('/chat', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ message: text })
+            })
+            .then(res => res.json())
+            .then(data => {
+                appendChatBubble('agent', data.response, data.logs);
+                fetchData();
+            })
+            .catch(err => console.error("Error setting task status:", err));
+        }
+
+        function appendChatBubble(sender, text, logs = []) {
+            const history = document.getElementById('chat-history');
+            const bubble = document.createElement('div');
+            bubble.className = `message-bubble ${sender}`;
+            
+            let content = `<div>${text}</div>`;
+            if (logs && logs.length > 0) {
+                content += `<div class="message-logs">${logs.join('\n')}</div>`;
+            }
+            
+            bubble.innerHTML = content;
+            history.appendChild(bubble);
+            history.scrollTop = history.scrollHeight;
+        }
+
+        // Voice Input Capture & Web Audio integration
+        function toggleVoice() {
+            const micBtn = document.getElementById('mic-btn');
+            if (isRecording) {
+                // Stop recording
+                mediaRecorder.stop();
+                micBtn.classList.remove('recording');
+                isRecording = false;
+            } else {
+                // Start recording
+                navigator.mediaDevices.getUserMedia({ audio: true })
+                    .then(stream => {
+                        mediaRecorder = new MediaRecorder(stream);
+                        audioChunks = [];
+                        
+                        mediaRecorder.ondataavailable = e => {
+                            audioChunks.push(e.data);
+                        };
+                        
+                        mediaRecorder.onstop = () => {
+                            const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+                            uploadAudio(audioBlob);
+                        };
+
+                        mediaRecorder.start();
+                        micBtn.classList.add('recording');
+                        isRecording = true;
+                    })
+                    .catch(err => {
+                        alert("Microphone access denied: " + err.message);
+                    });
+            }
+        }
+
+        function uploadAudio(blob) {
+            const formData = new FormData();
+            formData.append('file', blob, 'recording.webm');
+
+            appendChatBubble('user', '<i class="fa-solid fa-waveform-lines"></i> [Voice Input captured]');
+
+            fetch('/chat/voice', {
+                method: 'POST',
+                body: formData
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.transcript) {
+                    appendChatBubble('user', `Voice Transcript: "${data.transcript}"`);
+                }
+                appendChatBubble('agent', data.response, data.logs);
+                fetchData();
+            })
+            .catch(err => {
+                appendChatBubble('agent', 'Error parsing voice input: ' + err.message);
+            });
+        }
+    </script>
+</body>
+</html>

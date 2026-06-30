@@ -1,0 +1,8 @@
+{
+  "default_session": [
+    {
+      "user": "Give me a productivity summary",
+      "agent": "Here is your current productivity pattern summary and debrief:\n\n### \ud83d\udcca Productivity Profile Summary\n\n*   **Completion Rate:** You are starting with a clean slate! You currently have **0 tasks completed on time** and **0 tasks missed**.\n*   **Peak Focus Hours:** Your peak focus hours are concentrated in two primary blocks during the day:\n    *   **Morning Block:** 9:00 AM \u2013 11:00 AM\n    *   **Afternoon Block:** 2:00 PM \u2013 4:00 PM\n*   **Procrastination Risk Domains:** No specific high-risk procrastination domains have been identified yet. \n*   **Active Goal Streaks:** You currently have no active goals or habit streaks configured.\n\n---\n\n### \ud83d\udca1 Focus & Efficiency Insights\n\nSince your profile is in a fresh starting state, here are some actionable suggestions to set yourself up for success with PACT:\n\n1.  **Leverage Your Peak Focus Windows:**\n    *   Schedule your most complex, creative, or high-friction tasks during your peak hours (**9:00 AM \u2013 11:00 AM** and **2:00 PM \u2013 4:00 PM**). Use the off-peak hours for routine admin, meetings, or low-energy tasks.\n2.  **Define Your First Goal:**\n    *   Establishing a habit or long-term goal will allow PACT to track streaks and provide momentum. Let me know if you would like to set up a recurring task or habit!\n3.  **Aversiveness Monitoring:**\n    *   As you log and complete tasks, PACT will automatically track completion times and aversiveness ratings. If certain domains (e.g., \"Admin\", \"Writing\", \"Coding\") show signs of high procrastination, PACT will flag them and offer precommitment and drafting assistance."
+    }
+  ]
+}
